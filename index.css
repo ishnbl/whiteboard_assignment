@@ -1,0 +1,65 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #121212;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+}
+
+.ico-base {
+  color: #E2DFFF;
+  width: 5vw;
+  height: 5vw;
+  margin: 1vw;
+}
+
+#can {
+  margin-top: 1vw;
+  background-color: #E7E1CA;
+  width: 100vw;
+  height: 70vh;
+}
+
+#heading {
+  color: #E2DFFF;
+  margin-bottom: 1vw;
+  width: 100vw;
+  padding: 2vw;
+  text-align: center;
+}
+
+#icon-house {
+  display: flex;
+  flex-wrap: wrap;
+  width: 60vw;
+  justify-content: space-evenly;
+  align-items: center;
+  border: solid white;
+  border-width: 5px;
+  border-radius: 10px;
+  margin: auto;
+}
+
+
+
+#first-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+.jb-font {
+  font-family: "JetBrains Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+}

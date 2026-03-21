@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Title</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<body>
+  <div id="main_parent">
+    <div id="first-container">
+      <h1 class="jb-font" id="heading">
+        ENIAC's Whiteboard
+      </h1>
+    </div>
+    <div id="icon-house">
+      <div>
+        <i class="ico-base" id="square" data-lucide="square"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="triangle" data-lucide="triangle"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="rectangle" data-lucide="rectangle-horizontal"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="circle" data-lucide="circle"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="pen" data-lucide="pen"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="line" data-lucide="line-dot-right-horizontal"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="eraser" data-lucide="eraser"></i>
+      </div>
+    </div>
+    <canvas id="can"></canvas>
+
+  </div>
+  <script>lucide.createIcons();</script>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
