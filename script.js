@@ -15,8 +15,13 @@ const line = document.getElementById('line')
 canvas = document.getElementById('can');
 ctx = canvas.getContext("2d");
 
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
 let mode;
-let currY, currX, prevX, prevY = 0;
+let currY = 0;
+let currX = 0;
+let prevX = 0;
+let prevY = 0;
 let draw = false;
 
 function icoClick(e, type) {
@@ -61,20 +66,24 @@ canv.addEventListener('mouseup', (e) => {
 
 canv.addEventListener('mousedown', (e) => {
   draw = true;
-  currY = prevY;
-  currX = prevX;
+  currX = e.offsetX;
+  currY = e.offsetY
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+  ctx.closePath();
 });
 
 canv.addEventListener("mousemove", (e) => {
-  if (!draw) return;
-  prevX = currX;
-  prevY = currY;
-  currX = e.offsetX;
-  currY = e.offsetY;
-
-  ctx.beginPath();
-  ctx.moveTo(prevX, prevY);
-  ctx.lineTo(currX, currY);
-  ctx.stroke();
-  ctx.closePath();
+  if (draw) {
+    prevX = currX;
+    prevY = currY;
+    currX = e.offsetX;
+    currY = e.offsetY;
+    console.log(prevX, prevY, currX, currY, e.clientX, e.clientY)
+    ctx.beginPath();
+    ctx.moveTo(prevX, prevY);
+    ctx.lineTo(currX, currY);
+    ctx.stroke();
+    ctx.closePath();
+  }
 });
