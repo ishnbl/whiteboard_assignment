@@ -17,6 +17,11 @@ ctx = canvas.getContext("2d");
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
+
+let rectxi = 0;
+let rectyi = 0;
+let rectxf = 0;
+let rectyf = 0;
 let mode;
 let currY = 0;
 let currX = 0;
@@ -60,30 +65,64 @@ line.addEventListener('click', (e) => {
 const canv = document.getElementById('can')
 
 canv.addEventListener('mouseup', (e) => {
-  draw = false;
+
+  if (mode == "rectangle") {
+    if (draw) {
+      rectxf = e.offsetX;
+      rectyf = e.offsetY;
+      console.log(rectxi, rectyi, rectxf, rectyf)
+      let width_rect = rectxf - rectxi;
+      let height_rect = rectyf - rectyi;
+      ctx.strokeRect(rectxi, rectyi, width_rect, height_rect)
+      draw = false;
+    } else {
+      draw = true;
+    }
+  }
   console.log("mouse up")
 })
 
 canv.addEventListener('mousedown', (e) => {
-  draw = true;
-  currX = e.offsetX;
-  currY = e.offsetY
-  ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
-  ctx.closePath();
+  if (mode == "pen") {
+    draw = true;
+    currX = e.offsetX;
+    currY = e.offsetY
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+    ctx.closePath();
+  } else if (mode == "rectangle") {
+    if (!draw) {
+      rectxi = e.offsetX;
+      rectyi = e.offsetY;
+      ctx.beginPath();
+      ctx.moveTo(rectxi, rectyi);
+      ctx.closePath();
+    }
+
+  }
+
 });
 
 canv.addEventListener("mousemove", (e) => {
   if (draw) {
-    prevX = currX;
-    prevY = currY;
-    currX = e.offsetX;
-    currY = e.offsetY;
-    console.log(prevX, prevY, currX, currY, e.clientX, e.clientY)
-    ctx.beginPath();
-    ctx.moveTo(prevX, prevY);
-    ctx.lineTo(currX, currY);
-    ctx.stroke();
-    ctx.closePath();
+    if (mode == "pen") {
+      prevX = currX;
+      prevY = currY;
+      currX = e.offsetX;
+      currY = e.offsetY;
+      console.log(prevX, prevY, currX, currY, e.clientX, e.clientY)
+      ctx.beginPath();
+      ctx.moveTo(prevX, prevY);
+      ctx.lineTo(currX, currY);
+      ctx.stroke();
+      ctx.closePath();
+    } else if (mode == "square") {
+      prevX = currX;
+      prevY = currY;
+      currX = e.offsetX;
+      currY = e.offsetY;
+
+    }
+
   }
 });
