@@ -28,7 +28,7 @@ let currX = 0;
 let prevX = 0;
 let prevY = 0;
 let draw = false;
-
+let points = [];
 function icoClick(e, type) {
   console.log(type)
   mode = type;
@@ -65,7 +65,6 @@ line.addEventListener('click', (e) => {
 const canv = document.getElementById('can')
 
 canv.addEventListener('mouseup', (e) => {
-
   if (mode == "rectangle") {
     if (draw) {
       rectxf = e.offsetX;
@@ -78,6 +77,46 @@ canv.addEventListener('mouseup', (e) => {
     } else {
       draw = true;
     }
+  } else if (mode == "square") {
+    if (draw) {
+      rectxf = e.offsetX;
+      rectyf = e.offsetY;
+      console.log(rectxi, rectyi, rectxf, rectyf)
+      let width_rect = rectxf - rectxi;
+      ctx.strokeRect(rectxi, rectyi, width_rect, width_rect)
+      draw = false;
+    } else {
+      draw = true;
+    }
+  } else if (mode == "pen") {
+    draw = false;
+  } else if (mode == "circle") {
+    if (draw) {
+      rectxf = e.offsetX;
+      rectyf = e.offsetY;
+      let radius = Math.sqrt(((rectxf - rectxi) * (rectxf - rectxi)) + ((rectyf - rectyi) * (rectyf - rectyi)));
+      ctx.beginPath();
+      ctx.arc(rectxi, rectyi, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+      draw = false;
+    } else {
+      draw = true;
+    }
+  } else if (mode == "line") {
+    if (draw) {
+      rectxf = e.offsetX;
+      rectyf = e.offsetY;
+      ctx.beginPath();
+      ctx.moveTo(rectxi, rectyi);
+      ctx.lineTo(rectxf, rectyf);
+      ctx.stroke();
+      ctx.closePath();
+      draw = false;
+    } else {
+      draw = true;
+    }
+  } else if (mode == "eraser") {
+    draw = false;
   }
   console.log("mouse up")
 })
@@ -99,6 +138,39 @@ canv.addEventListener('mousedown', (e) => {
       ctx.closePath();
     }
 
+  } else if (mode == "square") {
+    if (!draw) {
+      rectxi = e.offsetX;
+      rectyi = e.offsetY;
+      ctx.beginPath();
+      ctx.moveTo(rectxi, rectyi);
+      ctx.closePath();
+    }
+  } else if (mode == "triangle") {
+    points.push({ x: e.offsetX, y: e.offsetY });
+    if (points.length === 3) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(points[1].x, points[1].y);
+      ctx.lineTo(points[2].x, points[2].y);
+      ctx.closePath();
+      ctx.stroke();
+      points = [];
+    }
+  } else if (mode == "circle") {
+    if (!draw) {
+      rectxi = e.offsetX;
+      rectyi = e.offsetY;
+    }
+  } else if (mode == "line") {
+    if (!draw) {
+      rectxi = e.offsetX;
+      rectyi = e.offsetY;
+    }
+  } else if (mode == "eraser") {
+    draw = true;
+    currX = e.offsetX;
+    currY = e.offsetY;
   }
 
 });
@@ -116,12 +188,8 @@ canv.addEventListener("mousemove", (e) => {
       ctx.lineTo(currX, currY);
       ctx.stroke();
       ctx.closePath();
-    } else if (mode == "square") {
-      prevX = currX;
-      prevY = currY;
-      currX = e.offsetX;
-      currY = e.offsetY;
-
+    } else if (mode == "eraser") {
+      ctx.clearRect(e.offsetX - 10, e.offsetY - 10, 20, 20);
     }
 
   }
