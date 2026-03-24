@@ -15,9 +15,7 @@
 <body>
   <div id="main_parent">
     <div id="first-container">
-      <h1 class="jb-font" id="heading">
-        ENIAC's Whiteboard
-      </h1>
+
     </div>
     <div id="icon-house">
       <div>
@@ -41,7 +39,25 @@
       <div>
         <i class="ico-base" id="eraser" data-lucide="eraser"></i>
       </div>
+      <div>
+        <i class="ico-base" id="text" data-lucide="type-outline"></i>
+      </div>
+      <div>
+        <i class="ico-base" id="select" data-lucide="square-dashed"></i>
+      </div>
+      <div>
+        <input type="color" id="color_s" value="#000000">
+      </div>
+      <div id="wbox">
+        <input type="range" id="swi" min="1" max="20" value="2" style="width:90px;cursor:pointer;">
+      </div>
+      <select id="stroke">
+        <option value="solid">— Solid</option>
+        <option value="dashed">– – Dashed</option>
+        <option value="dotted">· · · Dotted</option>
+      </select>
     </div>
+
     <canvas id="can"></canvas>
 
   </div>
