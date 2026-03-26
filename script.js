@@ -12,6 +12,8 @@ const stroke_val = document.getElementById('stroke')
 const color_val = document.getElementById('color_s')
 const swi = document.getElementById('swi')
 canvas = document.getElementById('can');
+
+let moveHold = false;
 ctx = canvas.getContext("2d");
 
 canvas.width = canvas.offsetWidth;
@@ -163,6 +165,9 @@ canv.addEventListener('mouseup', (e) => {
     }
   } else if (mode == "eraser") {
     draw = false;
+  } else if (mode == "select" && found==true){
+    console.log("change")
+    moveHold = false;
   }
 })
 
@@ -173,7 +178,7 @@ function search(x, y) {
       case "square": {
 
         if (x >= ele.x_i && x <= ele.x_i + ele.width && y >= ele.y_i && y <= ele.height + ele.y_i) {
-          return true;
+          return i;
         }
 
         break;
@@ -182,13 +187,13 @@ function search(x, y) {
 
       case "rectangle": {
         if (x >= ele.x_i && x <= ele.x_i + ele.width && y >= ele.y_i && y <= ele.height + ele.y_i) {
-          return true;
+          return i;
         }
         break;
       }
       case "circle": {
         if ((x - ele.x_i) ** 2 + (y - ele.y_i) ** 2 <= ele.r ** 2) {
-          return true;
+          return i;
 
         }
 
@@ -197,10 +202,10 @@ function search(x, y) {
 
       case "line": {
         let a2_b2 = Math.sqrt((ele.x_f - ele.x_i) ** 2 + (ele.y_f - ele.y_i) ** 2);
-        // distance of point from |line Ax^2 + By^2 + C | / root A^2 + B^2 11th ki coordinate geometry :) 
+        // distance of point from |line Ax^2 + By^2 + C | / root A^2 + B^2 11th ki coordinate geometry :)
         let dist = Math.abs((ele.y_f - ele.y_i) * x - (ele.x_f - ele.x_i) * y + ele.x_f * ele.y_i - ele.y_f * ele.x_i) / a2_b2;
         if (dist <= 4) {
-          return true
+          return i
         };
         break;
       }
@@ -208,7 +213,7 @@ function search(x, y) {
 
     }
   }
-  return false;
+  return -1;
 }
 
 canv.addEventListener('mousedown', (e) => {
@@ -256,12 +261,13 @@ canv.addEventListener('mousedown', (e) => {
     arr.push({ "tx": text, "xi": e.offsetX, "yi": e.offsetY, type: "text", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
     render()
   } else if (mode === "select" && found === true) {
-    console.log("yo")
-    let editf = document.createElement("div")
-    let canv = document.getElementById("can")
-    editf.id = "edit-form"
-    editf.innerHTML = "Yo"
-    mainp.insertBefore(editf, canv)
+    moveHold = true;
+    // console.log("yo")
+    // let editf = document.createElement("div")
+    // let canv = document.getElementById("can")
+    // editf.id = "edit-form"
+    // editf.innerHTML = "Yo"
+    // mainp.insertBefore(editf, canv)
 
   }
 });
@@ -285,7 +291,28 @@ canv.addEventListener("mousemove", (e) => {
     }
   }
   if (mode == "select") {
-    console.log(found)
+    console.log(mode, moveHold, found)
+    if(moveHold){
+      const hit = search(e.offsetX, e.offsetY);
+      console.log(hit)
+      let state_old = [...arr]
+      console.log(state_old)
+      arr.splice(hit, 1)
+      console.log(arr)
+      render()
+      // let state_old
+      // let state_old = [...arr]
+      // arr.splice(hit, 1)
+      // render();
+      // console.log(hit)
+      // if(state_old[hit].type == "square"){
+      //   ctx.beginPath();
+      //   ctx.strokeStyle = shape.color
+      //   ctx.lineWidth = shape.swi
+      //   ctx.strokeRect(e.offsetX, e.offsetY, state_old[hit].width, state_old[hit].width)
+      // }
+      // console.log("holding and moving")
+    }
     render();
     const hit = search(e.offsetX, e.offsetY);
     if (hit) {
@@ -293,6 +320,7 @@ canv.addEventListener("mousemove", (e) => {
       found = true;
     } else {
       canv.style.cursor = "auto"
+      found = false;
     }
   }
   if (mode == "rectangle" && draw === true) {
@@ -323,6 +351,22 @@ canv.addEventListener("mousemove", (e) => {
     ctx.lineTo(e.offsetX, e.offsetY);
     ctx.stroke();
 
+  } else if (mode == "triangle" && points.length > 0) {
+    render();
+    ctx.beginPath()
+    ctx.strokeStyle = color_val.value;
+    ctx.lineWidth = swi.value;
+    if (points.length === 1) {
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+    } else if (points.length === 2) {
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(points[1].x, points[1].y);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.closePath();
+      ctx.stroke();
+    }
   }
 });
 
