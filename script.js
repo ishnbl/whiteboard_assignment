@@ -11,15 +11,37 @@ const mainp = document.getElementById('main_parent')
 const mode_val = document.getElementById('mode')
 const color_val = document.getElementById('color_s')
 const swi = document.getElementById('swi')
+const angle = document.getElementById('angle')
+const clear = document.getElementById('clear')
 canvas = document.getElementById('can');
 const scale = document.getElementById('scale')
+const dmode = document.getElementById('dark_mode')
+let theme_init = "light"
 
-let theme_init = localStorage.getItem("theme")
-if (theme_init != null) {
-  document.documentElement.setAttribute('theme', theme_init)
-}else {
-  document.documentElement.setAttribute('theme', "light")
+let theme_loc = localStorage.getItem("theme")
+
+if(theme_loc === null){
+  localStorage.setItem(theme, "light")
+}else{
+  theme_init = theme_loc;
 }
+dmode.addEventListener('click', ()=>{
+  if(theme_loc==="light"){
+    theme_loc = "dark"
+    document.documentElement.setAttribute('theme', "dark")
+  }else{
+    theme_loc = "light"
+    document.documentElement.setAttribute('theme', "light")
+  }
+})
+
+
+clear.addEventListener('click', () => {
+  localStorage.removeItem("state");
+  arr=[]
+  render()
+})
+
 let moveHold = false;
 let delete_sel = true;
 ctx = canvas.getContext("2d");
@@ -31,11 +53,53 @@ state = localStorage.getItem("state")
 let found = false;
 let arr = [];
 let arr_prev = [];
+
+let undo = []
+
+function add_undo(){
+  undo.push(JSON.parse(JSON.stringify(arr)));
+}
+
 if (state != null) {
   arr = JSON.parse(state);
   arr_prev = JSON.parse(state);
+}//logic to check whether point is inside triangle from gfg
+function area(x1, y1, x2, y2, x3, y3) {
+  return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+}
+
+function isInside(x1, y1, x2, y2, x3, y3, x, y)
+{
+let A = area(x1, y1, x2, y2, x3, y3);
+
+let A1 = area(x, y, x2, y2, x3, y3);
+
+let A2 = area(x1, y1, x, y, x3, y3);
+
+let A3 = area(x1, y1, x2, y2, x, y);
+
+return (A == A1 + A2 + A3);
 }
 render()
+
+//logic to check whether point is inside triangle from gfg
+function area(x1, y1, x2, y2, x3, y3) {
+  return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+}
+
+function isInside(x1, y1, x2, y2, x3, y3, x, y)
+{
+let A = area(x1, y1, x2, y2, x3, y3);
+
+let A1 = area(x, y, x2, y2, x3, y3);
+
+let A2 = area(x1, y1, x, y, x3, y3);
+
+let A3 = area(x1, y1, x2, y2, x, y);
+
+return (A == A1 + A2 + A3);
+}
+
 
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -47,19 +111,28 @@ function render() {
 
     switch (shape.type) {
       case "rectangle":
-        ctx.strokeRect(shape.x_i, shape.y_i, shape.width, shape.height);
+        ctx.translate(shape.x_i + shape.width / 2, shape.y_i + shape.height / 2);
+        ctx.rotate(shape.angle * Math.PI / 180);
+        ctx.strokeRect(-shape.width / 2, -shape.height / 2, shape.width, shape.height);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         break;
       case "square":
-        ctx.strokeRect(shape.x_i, shape.y_i, shape.width, shape.height);
+        ctx.translate(shape.x_i + shape.width / 2, shape.y_i + shape.height / 2);
+        ctx.rotate(shape.angle * Math.PI / 180);
+        ctx.strokeRect(-shape.width / 2, -shape.height / 2, shape.width, shape.height);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         break;
       case "circle":
         ctx.arc(shape.x_i, shape.y_i, shape.r, 0, 2 * Math.PI);
         ctx.stroke();
         break;
       case "line":
-        ctx.moveTo(shape.x_i, shape.y_i);
-        ctx.lineTo(shape.x_f, shape.y_f);
+        ctx.translate((shape.x_i + shape.x_f) / 2, (shape.y_i + shape.y_f) / 2);
+        ctx.rotate(shape.angle * Math.PI / 180);
+        ctx.moveTo(- (shape.x_f - shape.x_i) / 2, - (shape.y_f - shape.y_i) / 2);
+        ctx.lineTo((shape.x_f - shape.x_i) / 2, (shape.y_f - shape.y_i) / 2);
         ctx.stroke();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         break;
       case "triangle":
         ctx.moveTo(shape.x1, shape.y1);
@@ -98,6 +171,7 @@ let points = [];
 function icoClick(e, type) {
   document.getElementById(mode).classList.remove('ico-base-selected')
   document.getElementById(mode).classList.add('ico-base')
+  angle.value = 0;
   console.log(type)
   mode = type;
   document.getElementById(mode).classList.remove('ico-base')
@@ -124,8 +198,9 @@ canv.addEventListener('mouseup', (e) => {
       let width_rect = rectxf - rectxi;
       let height_rect = rectyf - rectyi;
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: height_rect, type: "rectangle", color: color_val.value, swi: swi.value })
-      console.log(stroke_val.value, color_val.value, swi.value)
+      add_undo();
+      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: height_rect, type: "rectangle", color: color_val.value, swi: swi.value, angle: angle.value })
+      console.log(color_val.value, swi.value)
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -138,7 +213,8 @@ canv.addEventListener('mouseup', (e) => {
       rectyf = e.offsetY;
       let width_rect = rectxf - rectxi;
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: width_rect, type: "square", color: color_val.value, swi: swi.value })
+      add_undo();
+      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: width_rect, type: "square", color: color_val.value, swi: swi.value ,angle: angle.value})
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -153,7 +229,8 @@ canv.addEventListener('mouseup', (e) => {
       rectyf = e.offsetY;
       let radius = Math.sqrt(((rectxf - rectxi) * (rectxf - rectxi)) + ((rectyf - rectyi) * (rectyf - rectyi)));
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, r: radius, type: "circle", color: color_val.value, swi: swi.value })
+      add_undo();
+      arr.push({ x_i: rectxi, y_i: rectyi, r: radius, type: "circle", color: color_val.value, swi: swi.value, angle: angle.value })
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -165,7 +242,9 @@ canv.addEventListener('mouseup', (e) => {
       rectxf = e.offsetX;
       rectyf = e.offsetY;
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, x_f: rectxf, y_f: rectyf, type: "line",color: color_val.value, swi: swi.value })
+      add_undo();
+
+      arr.push({ x_i: rectxi, y_i: rectyi, x_f: rectxf, y_f: rectyf, type: "line",color: color_val.value, swi: swi.value, angle: angle.value })
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -218,6 +297,12 @@ function search(x, y) {
         };
         break;
       }
+      case "triangle": {
+        if (isInside(ele.x1, ele.y1, ele.x2, ele.y2, ele.x3, ele.y3, x, y)) {
+          return i;
+        };
+        break;
+      }
 
 
     }
@@ -245,7 +330,8 @@ canv.addEventListener('mousedown', (e) => {
     points.push({ x: e.offsetX, y: e.offsetY });
     if (points.length === 3) {
       arr_prev = [...arr];
-      arr.push({ x1: points[0].x, x2: points[1].x, x3: points[2].x, y1: points[0].y, y2: points[1].y, y3: points[2].y, type: "triangle",  color: color_val.value, swi: swi.value })
+      add_undo();
+      arr.push({ x1: points[0].x, x2: points[1].x, x3: points[2].x, y1: points[0].y, y2: points[1].y, y3: points[2].y, type: "triangle",  color: color_val.value, swi: swi.value, angle: angle.value })
       localStorage.setItem("state", JSON.stringify(arr))
       points = [];
       render();
@@ -267,22 +353,59 @@ canv.addEventListener('mousedown', (e) => {
   } else if (mode == "text") {
     let text = prompt();
     arr_prev = [...arr];
-    arr.push({ "tx": text, "xi": e.offsetX, "yi": e.offsetY, type: "text", color: color_val.value, swi: swi.value })
+    arr.push({ "tx": text, "xi": e.offsetX, "yi": e.offsetY, type: "text", color: color_val.value, swi: swi.value ,angle: angle.value})
     render()
   } else if (mode === "select" && found === true) {
     moveHold = true;
     prevX_move = e.offsetX;
     prevY_move = e.offsetY;
     let hit = search(e.offsetX, e.offsetY);
-    let scale_val = scale.value;
-    if(arr[hit].type === "square" || arr[hit].type === "rectangle") {
-      arr[hit].width *= scale_val;
-      arr[hit].height *= scale_val;
+    let scale_val = Number(scale.value);
+    let elem = arr[hit]
+    add_undo()
+    if (elem.type === "square" || elem.type === "rectangle") {
+      console.log(scale_val)
+      elem.width *= scale_val;
+      elem.height *= scale_val;
+      elem.angle = Number(angle.value);
       render();
-    } else if(arr[hit].type === "circle") {
-      arr[hit].r *= scale_val;
+    } else if (elem.type === "circle") {
+      elem.r *= scale_val;
       render();
-    }
+    } else if (elem.type === "triangle") {
+
+      let centX = (elem.x1 + elem.x2 + elem.x3) / 3;
+      let centY = (elem.y1 + elem.y2 + elem.y3) / 3;
+
+      // Scaling
+      elem.x1 = centX + (elem.x1 - centX) * scale_val;
+      elem.y1 = centY + (elem.y1 - centY) * scale_val;
+      elem.x2 = centX + (elem.x2 - centX) * scale_val;
+      elem.y2 = centY + (elem.y2 - centY) * scale_val;
+      elem.x3 = centX + (elem.x3 - centX) * scale_val;
+      elem.y3 = centY + (elem.y3 - centY) * scale_val;
+
+      elem.angle = Number(angle.value);
+
+      // Point 1 Rotation
+      let x1Rel = elem.x1 - centX;
+      let y1Rel = elem.y1 - centY;
+      elem.x1 = centX + (x1Rel * Math.cos(elem.angle * Math.PI / 180) - y1Rel * Math.sin(elem.angle * Math.PI / 180));
+      elem.y1 = centY + (x1Rel * Math.sin(elem.angle * Math.PI / 180) + y1Rel * Math.cos(elem.angle * Math.PI / 180));
+
+      // Point 2 Rotation
+      let x2Rel = elem.x2 - centX;
+      let y2Rel = elem.y2 - centY;
+      elem.x2 = centX + (x2Rel * Math.cos(elem.angle * Math.PI / 180) - y2Rel * Math.sin(elem.angle * Math.PI / 180));
+      elem.y2 = centY + (x2Rel * Math.sin(elem.angle * Math.PI / 180) + y2Rel * Math.cos(elem.angle * Math.PI / 180));
+
+      // Point 3 Rotation
+      let x3Rel = elem.x3 - centX;
+      let y3Rel = elem.y3 - centY;
+      elem.x3 = centX + (x3Rel * Math.cos(elem.angle * Math.PI / 180) - y3Rel * Math.sin(elem.angle * Math.PI / 180));
+      elem.y3 = centY + (x3Rel * Math.sin(elem.angle * Math.PI / 180) + y3Rel * Math.cos(elem.angle * Math.PI / 180));
+
+      render();
     // console.log("yo")
     // let editf = document.createElement("div")
     // let canv = document.getElementById("can")
@@ -290,6 +413,8 @@ canv.addEventListener('mousedown', (e) => {
     // editf.innerHTML = "Yo"
     // mainp.insertBefore(editf, canv)
 
+    }
+    localStorage.setItem("state", JSON.stringify(arr))
   }
 });
 
@@ -305,13 +430,20 @@ canv.addEventListener("mousemove", (e) => {
       currX = e.offsetX;
       currY = e.offsetY;
       arr_prev = [...arr];
-      arr.push({ x1: prevX, y1: prevY, x2: currX, y2: currY, type: "segment", color: color_val.value, swi: swi.value })
+      arr.push({ x1: prevX, y1: prevY, x2: currX, y2: currY, type: "segment", color: color_val.value, swi: swi.value, angle: angle.value })
       localStorage.setItem("state", JSON.stringify(arr))
       render();
     } else if (mode == "eraser") {
       arr_prev = [...arr];
+      let hit = search(e.offsetX, e.offsetY)
+      if(hit != -1){
+        add_undo()
+        arr.splice(hit, 1)
+        render()
+      }
       arr.push({ x: e.offsetX, y: e.offsetY, type: "eraser" })
       localStorage.setItem("state", JSON.stringify(arr))
+
       render();
     }
   }
@@ -364,22 +496,34 @@ canv.addEventListener("mousemove", (e) => {
   if(mode == "select"){
 
     const hit = search(e.offsetX, e.offsetY);
-    if(hit != -1){
+    if (hit != -1) {
       canv.style.cursor = "pointer"
       found = true;
-    }else{
+    } else {
       canv.style.cursor = "auto"
       found = false;
     }
 
-    if(moveHold && found){
+    if (moveHold && found && (arr[hit].type === "square" || arr[hit].type === "rectangle" || arr[hit].type === "circle")) {
       arr[hit].x_i += e.offsetX - prevX_move
       arr[hit].y_i += e.offsetY - prevY_move
       render()
       prevX_move = e.offsetX;
       prevY_move = e.offsetY;
       localStorage.setItem("state", JSON.stringify(arr))
+    }else if (moveHold && found && arr[hit].type === "triangle") {
+      arr[hit].x1 += e.offsetX - prevX_move
+      arr[hit].y1 += e.offsetY - prevY_move
+      arr[hit].x2 += e.offsetX - prevX_move
+      arr[hit].y2 += e.offsetY - prevY_move
+      arr[hit].x3 += e.offsetX - prevX_move
+      arr[hit].y3 += e.offsetY - prevY_move
+      render()
+      prevX_move = e.offsetX;
+      prevY_move = e.offsetY;
+      localStorage.setItem("state", JSON.stringify(arr))
     }
+
   }
   if (mode == "rectangle" && draw === true) {
   render();
@@ -429,20 +573,22 @@ canv.addEventListener("mousemove", (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  console.log(undo)
   if (e.ctrlKey && e.key === 'z') {
-    console.log("log")
-    console.log(arr_prev)
-    arr = [...arr_prev]
-    localStorage.setItem("state", JSON.stringify(arr))
-    render()
+    if (undo.length > 0) {
+      arr = undo.pop();
+      console.log(undo)
+      localStorage.setItem("state", JSON.stringify(arr));
+      render();
+    }
   }
-})
-mode_val.addEventListener('change', (e) => {
-  if (mode_val.value === "dark") {
-    document.documentElement.setAttribute('theme', 'dark');
-    localStorage.setItem("theme", "dark")
-  } else {
-    document.documentElement.setAttribute('theme', 'light');
-    localStorage.setItem("theme", "light")
-  }
-})
+});
+// mode_val.addEventListener('change', (e) => {
+//   if (mode_val.value === "dark") {
+//     document.documentElement.setAttribute('theme', 'dark');
+//     localStorage.setItem("theme", "dark")
+//   } else {
+//     document.documentElement.setAttribute('theme', 'light');
+//     localStorage.setItem("theme", "light")
+//   }
+// })

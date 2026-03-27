@@ -3,6 +3,7 @@
   --can-col: white;
   --border-col: white;
   --highlight: #E2DFFF;
+  --sel-col: white;
 }
 
 :root[theme="dark"] {
@@ -10,6 +11,7 @@
   --can-col: black;
   --border-col: black;
   --highlight: #FFFFFF;
+  --sel-col: black;
 }
 * {
   margin: 0;
@@ -18,7 +20,26 @@
   background-color: var(--bg-color);
 }
 
+#dark_mode {
 
+}
+#angle{
+  width: 7vw;
+  height: 2vh;
+  padding: 1vw;
+  color: var(--border-col);
+  border: 2px solid #E2DFFF;
+  background-color: var(--bg-color);
+}
+
+#mode {
+  width: 7vw;
+  height: 2vh;
+  padding: 1vw;
+  color: var(--sel-col) !important;
+  border: 2px solid #E2DFFF;
+  background-color: var(--bg-color) !important;
+}
 .material-symbols-outlined {
   font-variation-settings:
     'FILL' 0,
@@ -37,6 +58,8 @@
 .ico-base-selected {
   color: var(--border-col);
   background-color: var(--highlight);
+  border-radius: 5px;
+  border: 1px solid var(--border-col);
   width: 2vw;
   height: 4vh;
   margin: 0.1vw;
@@ -44,7 +67,7 @@
 
 #can {
   margin-top: 1vw;
-  background-color: var(--can-col);
+  background-color: white;
   width: 95vw;
   height: 90vh;
   margin-left: 2.5vw;
