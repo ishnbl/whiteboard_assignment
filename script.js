@@ -8,14 +8,23 @@ const line = document.getElementById('line')
 const text = document.getElementById('text')
 const select = document.getElementById('select')
 const mainp = document.getElementById('main_parent')
-const stroke_val = document.getElementById('stroke')
+const mode_val = document.getElementById('mode')
 const color_val = document.getElementById('color_s')
 const swi = document.getElementById('swi')
 canvas = document.getElementById('can');
+const scale = document.getElementById('scale')
 
+let theme_init = localStorage.getItem("theme")
+if (theme_init != null) {
+  document.documentElement.setAttribute('theme', theme_init)
+}else {
+  document.documentElement.setAttribute('theme', "light")
+}
 let moveHold = false;
+let delete_sel = true;
 ctx = canvas.getContext("2d");
-
+let prevX_move = 0;
+let prevY_move  = 0;
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 state = localStorage.getItem("state")
@@ -115,7 +124,7 @@ canv.addEventListener('mouseup', (e) => {
       let width_rect = rectxf - rectxi;
       let height_rect = rectyf - rectyi;
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: height_rect, type: "rectangle", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: height_rect, type: "rectangle", color: color_val.value, swi: swi.value })
       console.log(stroke_val.value, color_val.value, swi.value)
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
@@ -129,7 +138,7 @@ canv.addEventListener('mouseup', (e) => {
       rectyf = e.offsetY;
       let width_rect = rectxf - rectxi;
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: width_rect, type: "square", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+      arr.push({ x_i: rectxi, y_i: rectyi, width: width_rect, height: width_rect, type: "square", color: color_val.value, swi: swi.value })
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -144,7 +153,7 @@ canv.addEventListener('mouseup', (e) => {
       rectyf = e.offsetY;
       let radius = Math.sqrt(((rectxf - rectxi) * (rectxf - rectxi)) + ((rectyf - rectyi) * (rectyf - rectyi)));
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, r: radius, type: "circle", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+      arr.push({ x_i: rectxi, y_i: rectyi, r: radius, type: "circle", color: color_val.value, swi: swi.value })
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -156,7 +165,7 @@ canv.addEventListener('mouseup', (e) => {
       rectxf = e.offsetX;
       rectyf = e.offsetY;
       arr_prev = [...arr];
-      arr.push({ x_i: rectxi, y_i: rectyi, x_f: rectxf, y_f: rectyf, type: "line", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+      arr.push({ x_i: rectxi, y_i: rectyi, x_f: rectxf, y_f: rectyf, type: "line",color: color_val.value, swi: swi.value })
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -165,7 +174,7 @@ canv.addEventListener('mouseup', (e) => {
     }
   } else if (mode == "eraser") {
     draw = false;
-  } else if (mode == "select" && found==true){
+  } else if (mode == "select" && found == true) {
     console.log("change")
     moveHold = false;
   }
@@ -236,7 +245,7 @@ canv.addEventListener('mousedown', (e) => {
     points.push({ x: e.offsetX, y: e.offsetY });
     if (points.length === 3) {
       arr_prev = [...arr];
-      arr.push({ x1: points[0].x, x2: points[1].x, x3: points[2].x, y1: points[0].y, y2: points[1].y, y3: points[2].y, type: "triangle", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+      arr.push({ x1: points[0].x, x2: points[1].x, x3: points[2].x, y1: points[0].y, y2: points[1].y, y3: points[2].y, type: "triangle",  color: color_val.value, swi: swi.value })
       localStorage.setItem("state", JSON.stringify(arr))
       points = [];
       render();
@@ -258,10 +267,22 @@ canv.addEventListener('mousedown', (e) => {
   } else if (mode == "text") {
     let text = prompt();
     arr_prev = [...arr];
-    arr.push({ "tx": text, "xi": e.offsetX, "yi": e.offsetY, type: "text", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+    arr.push({ "tx": text, "xi": e.offsetX, "yi": e.offsetY, type: "text", color: color_val.value, swi: swi.value })
     render()
   } else if (mode === "select" && found === true) {
     moveHold = true;
+    prevX_move = e.offsetX;
+    prevY_move = e.offsetY;
+    let hit = search(e.offsetX, e.offsetY);
+    let scale_val = scale.value;
+    if(arr[hit].type === "square" || arr[hit].type === "rectangle") {
+      arr[hit].width *= scale_val;
+      arr[hit].height *= scale_val;
+      render();
+    } else if(arr[hit].type === "circle") {
+      arr[hit].r *= scale_val;
+      render();
+    }
     // console.log("yo")
     // let editf = document.createElement("div")
     // let canv = document.getElementById("can")
@@ -272,6 +293,10 @@ canv.addEventListener('mousedown', (e) => {
   }
 });
 
+let idx_mov;
+let state_old
+
+
 canv.addEventListener("mousemove", (e) => {
   if (draw) {
     if (mode == "pen") {
@@ -280,7 +305,7 @@ canv.addEventListener("mousemove", (e) => {
       currX = e.offsetX;
       currY = e.offsetY;
       arr_prev = [...arr];
-      arr.push({ x1: prevX, y1: prevY, x2: currX, y2: currY, type: "segment", stroke: stroke_val.value, color: color_val.value, swi: swi.value })
+      arr.push({ x1: prevX, y1: prevY, x2: currX, y2: currY, type: "segment", color: color_val.value, swi: swi.value })
       localStorage.setItem("state", JSON.stringify(arr))
       render();
     } else if (mode == "eraser") {
@@ -290,84 +315,117 @@ canv.addEventListener("mousemove", (e) => {
       render();
     }
   }
-  if (mode == "select") {
-    console.log(mode, moveHold, found)
-    if(moveHold){
-      const hit = search(e.offsetX, e.offsetY);
-      console.log(hit)
-      let state_old = [...arr]
-      console.log(state_old)
-      arr.splice(hit, 1)
-      console.log(arr)
-      render()
-      // let state_old
-      // let state_old = [...arr]
-      // arr.splice(hit, 1)
-      // render();
-      // console.log(hit)
-      // if(state_old[hit].type == "square"){
-      //   ctx.beginPath();
-      //   ctx.strokeStyle = shape.color
-      //   ctx.lineWidth = shape.swi
-      //   ctx.strokeRect(e.offsetX, e.offsetY, state_old[hit].width, state_old[hit].width)
-      // }
-      // console.log("holding and moving")
-    }
-    render();
+  // if (mode == "select") {
+  //   // console.log(mode, moveHold, found)
+  //   // // let idx;
+  //   // if (moveHold) {
+  //   //   const hit = search(e.offsetX, e.offsetY);
+  //   //   console.log(hit)
+  //   //   if (delete_sel) {
+  //   //     state_old = [...arr]
+  //   //     console.log(state_old)
+  //   //     arr.splice(hit, 1)
+  //   //     delete_sel = false;
+  //   //     idx_move = hit;
+  //   //   }
+  //   //   console.log(arr)
+  //   //   render()
+  //   //   // let state_old
+  //   //   // let state_old = [...arr]
+  //   //   // arr.splice(hit, 1)
+  //   //   // render();
+  //   //   // console.log(hit)
+  //   //   console.log(state_old[idx_move])
+  //   //   if (state_old[idx_move].type == "square") {
+  //   //     console.log("in")
+  //   //     ctx.beginPath();
+  //   //     ctx.strokeStyle = state_old[idx_move].color
+  //   //     ctx.lineWidth = state_old[idx_move].swi
+  //   //     ctx.strokeRect(e.offsetX, e.offsetY, state_old[idx_move].width, state_old[idx_move].width)
+  //   //   }
+  //   //   // console.log("holding and moving")
+  //   console.log(mode, moveHold, found)
+  //   if (moveHold) {
+  //     let hit = search(e.offsetX, e.offsetY)
+  //     arr[hit].x_i = e.offsetX
+  //     arr[hit].y_i = e.offsetY
+  //     render()
+  //   }
+  // }
+  // render();
+  // const hit = search(e.offsetX, e.offsetY);
+  // if (hit) {
+  //   canv.style.cursor = "pointer"
+  //   found = true;
+  // } else {p = e.offs
+  //   canv.style.cursor = "auto"
+  //   found = false;
+  // }
+  if(mode == "select"){
+
     const hit = search(e.offsetX, e.offsetY);
-    if (hit) {
+    if(hit != -1){
       canv.style.cursor = "pointer"
       found = true;
-    } else {
+    }else{
       canv.style.cursor = "auto"
       found = false;
     }
-  }
-  if (mode == "rectangle" && draw === true) {
-    render();
-    ctx.beginPath();
-    ctx.strokeStyle = color_val.value
-    ctx.lineWidth = swi.value
-    ctx.strokeRect(rectxi, rectyi, Math.abs(e.offsetX - rectxi), Math.abs(e.offsetY - rectyi));
-  } else if (mode == "square" && draw === true) {
-    render();
-    ctx.beginPath();
-    ctx.strokeStyle = color_val.value
-    ctx.lineWidth = swi.value
-    ctx.strokeRect(rectxi, rectyi, Math.abs(e.offsetX - rectxi), Math.abs(e.offsetX - rectxi));
-  } else if (mode == "circle" && draw === true) {
-    render();
-    ctx.beginPath();
-    ctx.strokeStyle = color_val.value
-    ctx.lineWidth = swi.value
-    ctx.arc(rectxi, rectyi, Math.sqrt(((e.offsetX - rectxi) * (e.offsetX - rectxi)) + ((e.offsetY - rectyi) * (e.offsetY - rectyi))), 0, 2 * Math.PI);
-    ctx.stroke();
-  } else if (mode == "line" && draw === true) {
-    render()
-    ctx.beginPath();
-    ctx.strokeStyle = color_val.value
-    ctx.lineWidth = swi.value
-    ctx.moveTo(rectxi, rectyi);
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
 
-  } else if (mode == "triangle" && points.length > 0) {
-    render();
-    ctx.beginPath()
-    ctx.strokeStyle = color_val.value;
-    ctx.lineWidth = swi.value;
-    if (points.length === 1) {
-      ctx.moveTo(points[0].x, points[0].y);
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.stroke();
-    } else if (points.length === 2) {
-      ctx.moveTo(points[0].x, points[0].y);
-      ctx.lineTo(points[1].x, points[1].y);
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.closePath();
-      ctx.stroke();
+    if(moveHold && found){
+      arr[hit].x_i += e.offsetX - prevX_move
+      arr[hit].y_i += e.offsetY - prevY_move
+      render()
+      prevX_move = e.offsetX;
+      prevY_move = e.offsetY;
+      localStorage.setItem("state", JSON.stringify(arr))
     }
   }
+  if (mode == "rectangle" && draw === true) {
+  render();
+  ctx.beginPath();
+  ctx.strokeStyle = color_val.value
+  ctx.lineWidth = swi.value
+  ctx.strokeRect(rectxi, rectyi, Math.abs(e.offsetX - rectxi), Math.abs(e.offsetY - rectyi));
+} else if (mode == "square" && draw === true) {
+  render();
+  ctx.beginPath();
+  ctx.strokeStyle = color_val.value
+  ctx.lineWidth = swi.value
+  ctx.strokeRect(rectxi, rectyi, Math.abs(e.offsetX - rectxi), Math.abs(e.offsetX - rectxi));
+} else if (mode == "circle" && draw === true) {
+  render();
+  ctx.beginPath();
+  ctx.strokeStyle = color_val.value
+  ctx.lineWidth = swi.value
+  ctx.arc(rectxi, rectyi, Math.sqrt(((e.offsetX - rectxi) * (e.offsetX - rectxi)) + ((e.offsetY - rectyi) * (e.offsetY - rectyi))), 0, 2 * Math.PI);
+  ctx.stroke();
+} else if (mode == "line" && draw === true) {
+  render()
+  ctx.beginPath();
+  ctx.strokeStyle = color_val.value
+  ctx.lineWidth = swi.value
+  ctx.moveTo(rectxi, rectyi);
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+
+} else if (mode == "triangle" && points.length > 0) {
+  render();
+  ctx.beginPath()
+  ctx.strokeStyle = color_val.value;
+  ctx.lineWidth = swi.value;
+  if (points.length === 1) {
+    ctx.moveTo(points[0].x, points[0].y);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  } else if (points.length === 2) {
+    ctx.moveTo(points[0].x, points[0].y);
+    ctx.lineTo(points[1].x, points[1].y);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.closePath();
+    ctx.stroke();
+  }
+}
 });
 
 document.addEventListener('keydown', (e) => {
@@ -377,5 +435,14 @@ document.addEventListener('keydown', (e) => {
     arr = [...arr_prev]
     localStorage.setItem("state", JSON.stringify(arr))
     render()
+  }
+})
+mode_val.addEventListener('change', (e) => {
+  if (mode_val.value === "dark") {
+    document.documentElement.setAttribute('theme', 'dark');
+    localStorage.setItem("theme", "dark")
+  } else {
+    document.documentElement.setAttribute('theme', 'light');
+    localStorage.setItem("theme", "light")
   }
 })

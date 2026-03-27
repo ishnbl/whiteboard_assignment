@@ -1,9 +1,23 @@
+:root {
+  --bg-color: #121212;
+  --can-col: white;
+  --border-col: white;
+  --highlight: #E2DFFF;
+}
+
+:root[theme="dark"] {
+  --bg-color: #E2DFFF;
+  --can-col: black;
+  --border-col: black;
+  --highlight: #FFFFFF;
+}
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: #121212;
+  background-color: var(--bg-color);
 }
+
 
 .material-symbols-outlined {
   font-variation-settings:
@@ -14,15 +28,15 @@
 }
 
 .ico-base {
-  color: #E2DFFF;
+  color: var(--border-col);
   width: 2vw;
   height: 4vh;
   margin: 0.1vw;
 }
 
 .ico-base-selected {
-  color: black;
-  background-color: #E2DFFF;
+  color: var(--border-col);
+  background-color: var(--highlight);
   width: 2vw;
   height: 4vh;
   margin: 0.1vw;
@@ -30,7 +44,7 @@
 
 #can {
   margin-top: 1vw;
-  background-color: white;
+  background-color: var(--can-col);
   width: 95vw;
   height: 90vh;
   margin-left: 2.5vw;
@@ -58,7 +72,7 @@
   width: 1.5vw;
   height: 1.5vw;
   margin: 1vw;
-  border: 1px solid white;
+  border: 1px solid var(--border-col);
 }
 
 #main-parent {
@@ -73,7 +87,7 @@
   width: 95vw;
   justify-content: space-evenly;
   align-items: center;
-  border: solid white;
+  border: solid var(--border-col);
   border-width: 5px;
   border-radius: 10px;
   margin: auto;
