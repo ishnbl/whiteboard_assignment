@@ -21,7 +21,7 @@ let theme_init = "light"
 let theme_loc = localStorage.getItem("theme")
 
 if(theme_loc === null){
-  localStorage.setItem(theme, "light")
+  localStorage.setItem("theme", "light")
 }else{
   theme_init = theme_loc;
 }
