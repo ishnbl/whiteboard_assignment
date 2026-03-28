@@ -1,5 +1,6 @@
 //grabbing elements
 
+
 const squ = document.getElementById('square')
 const cir = document.getElementById('circle')
 const triangle = document.getElementById('triangle')
@@ -17,7 +18,7 @@ const angle = document.getElementById('angle')
 const clear = document.getElementById('clear')
 canvas = document.getElementById('can');
 const scale = document.getElementById('scale')
-const dmode = document.getElementById('dark_mode')
+const dmode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 = document.getElementById('dark_mode')
 let theme_init = "light"
 let theme_loc = localStorage.getItem("theme")
 let moveHold = false;
@@ -36,6 +37,7 @@ let found = false;
 let arr = [];
 let arr_prev = [];
 
+let redo = []
 let undo = []
 
 //rendering vars
@@ -74,4 +76,28 @@ if (state != null) {
 
 function add_undo(){
     undo.push(JSON.parse(JSON.stringify(arr)));
+
+    redo = []
 }
+
+document.addEventListener('keydown', (e) => {
+    console.log(undo)
+    if (e.ctrlKey && e.key === 'z') {
+        if (undo.length > 0) {
+            redo.push(JSON.parse(JSON.stringify(arr)));
+            arr = undo.pop();
+            console.log(undo)
+            localStorage.setItem("state", JSON.stringify(arr));
+            render();
+        }
+    } else if (e.ctrlKey && e.key === 'r') {
+        e.preventDefault()
+        if (redo.length > 0) {
+            undo.push(JSON.parse(JSON.stringify(arr)));
+            arr = redo.pop();
+            localStorage.setItem("state", JSON.stringify(arr));
+            render();
+        }
+    }
+});
+

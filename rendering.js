@@ -4,6 +4,7 @@ clear.addEventListener('click', () => {
     render()
 })
 
+
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < arr.length; i++) {
@@ -44,10 +45,16 @@ function render() {
                 ctx.closePath();
                 ctx.stroke();
                 break;
-            case "segment":
-                ctx.moveTo(shape.x1, shape.y1);
-                ctx.lineTo(shape.x2, shape.y2);
-                ctx.stroke();
+            case "pen":
+                if(shape.penarr.length===0){
+                    break;
+                }
+                ctx.moveTo(shape.penarr[0].x1, shape.penarr[0].y1);
+                for (let i = 0; i < shape.penarr.length; i++) {
+                    ctx.moveTo(shape.penarr[i].x1, shape.penarr[i].y1);
+                    ctx.lineTo(shape.penarr[i].x2, shape.penarr[i].y2);
+                    ctx.stroke();
+                }
                 break;
             case "eraser":
                 ctx.clearRect(shape.x - 10, shape.y - 10, 20, 20);
@@ -59,6 +66,7 @@ function render() {
     }
 }
 
+
 function icoClick(e, type) {
     document.getElementById(mode).classList.remove('ico-base-selected')
     document.getElementById(mode).classList.add('ico-base')
@@ -68,6 +76,7 @@ function icoClick(e, type) {
     document.getElementById(mode).classList.remove('ico-base')
     document.getElementById(mode).classList.add('ico-base-selected')
 }
+
 
 squ.addEventListener('click', (e) => { icoClick(e, "square") })
 cir.addEventListener('click', (e) => { icoClick(e, "circle") })
@@ -79,14 +88,3 @@ line.addEventListener('click', (e) => { icoClick(e, "line") })
 text.addEventListener('click', (e) => { icoClick(e, "text") })
 select.addEventListener('click', (e) => { icoClick(e, "select") })
 
-document.addEventListener('keydown', (e) => {
-    console.log(undo)
-    if (e.ctrlKey && e.key === 'z') {
-        if (undo.length > 0) {
-            arr = undo.pop();
-            console.log(undo)
-            localStorage.setItem("state", JSON.stringify(arr));
-            render();
-        }
-    }
-});

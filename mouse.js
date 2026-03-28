@@ -1,3 +1,6 @@
+let pen_arr = []
+
+
 canv.addEventListener('mouseup', (e) => {
     if (mode == "rectangle") {
         if (draw) {
@@ -30,6 +33,11 @@ canv.addEventListener('mouseup', (e) => {
             draw = true;
         }
     } else if (mode == "pen") {
+        arr_prev = [...arr];
+        add_undo()
+        arr.push({penarr: pen_arr, type: "pen", color: color_val.value, swi: swi.value, angle: angle.value})
+        localStorage.setItem("state", JSON.stringify(arr))
+        pen_arr = []
         draw = false;
     } else if (mode == "circle") {
         if (draw) {
@@ -54,6 +62,7 @@ canv.addEventListener('mouseup', (e) => {
 
             arr.push({ x_i: rectxi, y_i: rectyi, x_f: rectxf, y_f: rectyf, type: "line",color: color_val.value, swi: swi.value, angle: angle.value })
             localStorage.setItem("state", JSON.stringify(arr))
+
             draw = false;
             render();
         } else {
@@ -180,14 +189,27 @@ canv.addEventListener('mousedown', (e) => {
 canv.addEventListener("mousemove", (e) => {
     if (draw) {
         if (mode == "pen") {
+            ctx.beginPath()
+            if(pen_arr.length ===0){
+                ctx.strokeStyle = color_val.value;
+                ctx.lineWidth = swi.value;
+                ctx.moveTo(e.offsetX,e.offsetY);
+                ctx.lineTo(currX, currY);
+                ctx.stroke();
+            }else {
+                ctx.strokeStyle = color_val.value;
+                ctx.lineWidth = swi.value;
+                ctx.moveTo(prevX, prevY);
+                ctx.lineTo(currX, currY);
+                ctx.stroke();
+            }
             prevX = currX;
             prevY = currY;
             currX = e.offsetX;
             currY = e.offsetY;
-            arr_prev = [...arr];
-            arr.push({ x1: prevX, y1: prevY, x2: currX, y2: currY, type: "segment", color: color_val.value, swi: swi.value, angle: angle.value })
-            localStorage.setItem("state", JSON.stringify(arr))
-            render();
+            pen_arr.push({ x1: prevX, y1: prevY, x2: currX, y2: currY})
+            //localStorage.setItem("state", JSON.stringify(arr))
+            // render();
         } else if (mode == "eraser") {
             arr_prev = [...arr];
             let hit = search(e.offsetX, e.offsetY)
@@ -232,6 +254,19 @@ canv.addEventListener("mousemove", (e) => {
             prevX_move = e.offsetX;
             prevY_move = e.offsetY;
             localStorage.setItem("state", JSON.stringify(arr))
+        }else if (moveHold && found && arr[hit].type === "pen") {
+            let x_mv = e.offsetX - prevX_move;
+            let y_mv = e.offsetY - prevY_move;
+            for(let j = 0; j < arr[hit].penarr.length; j++) {
+                arr[hit].penarr[j].x1 += x_mv;
+                arr[hit].penarr[j].y1 += y_mv;
+                arr[hit].penarr[j].x2 += x_mv;
+                arr[hit].penarr[j].y2 += y_mv;
+                render()
+                prevX_move = e.offsetX;
+                prevY_move = e.offsetY;
+                localStorage.setItem("state", JSON.stringify(arr))
+            }
         }
 
     }

@@ -61,6 +61,17 @@ function search(x, y) {
                 break;
             }
 
+            case "pen":{
+                let found_touch = -1;
+                for (let j = 0; j < ele.penarr.length; j++) {
+                    let dist = (x - ele.penarr[j].x1)**2 + (y-ele.penarr[j].y1)**2;
+                    if(dist <= 500){
+                        return  i;
+                    }
+                }
+
+            }
+
 
         }
     }
