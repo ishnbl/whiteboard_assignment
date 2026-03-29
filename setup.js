@@ -25,6 +25,8 @@ let moveHold = false;
 let delete_sel = true;
 const canv = document.getElementById('can')
 //canvas setting
+
+let reload_img = true;
 ctx = canvas.getContext("2d");
 let prevX_move = 0;
 let prevY_move  = 0;
