@@ -83,12 +83,10 @@ function add_undo(){
 }
 
 document.addEventListener('keydown', (e) => {
-    console.log(undo)
     if (e.ctrlKey && e.key === 'z') {
         if (undo.length > 0) {
             redo.push(JSON.parse(JSON.stringify(arr)));
             arr = undo.pop();
-            console.log(undo)
             localStorage.setItem("state", JSON.stringify(arr));
             render();
         }

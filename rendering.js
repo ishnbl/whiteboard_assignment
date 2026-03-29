@@ -91,7 +91,6 @@ function icoClick(e, type) {
   document.getElementById(mode).classList.remove('ico-base-selected')
   document.getElementById(mode).classList.add('ico-base')
   angle.value = 0;
-  console.log(type)
   mode = type;
   document.getElementById(mode).classList.remove('ico-base')
   document.getElementById(mode).classList.add('ico-base-selected')

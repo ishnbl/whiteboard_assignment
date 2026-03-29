@@ -15,7 +15,7 @@ canv.addEventListener('mouseup', (e) => {
         renX = rectxf
       } else if (width_rect > 0 && height_rect < 0) {
         renY = rectyf
-      } else {
+      } else if (width_rect < 0 && height_rect < 0) {
         renX = rectxf
         renY = rectyf
       }
@@ -26,7 +26,6 @@ canv.addEventListener('mouseup', (e) => {
       add_undo();
       arr.push({ x_i: renX, y_i: renY, width: width_rect, height: height_rect, type: "rectangle", color: color_val.value, swi: swi.value, angle: angle.value })
 
-      console.log(color_val.value, swi.value)
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
       render();
@@ -48,28 +47,21 @@ canv.addEventListener('mouseup', (e) => {
       let renX = rectxi
       let renY = rectyi
 
-      console.log(rectxi, rectyi)
       let draw_W = Math.abs(e.offsetX - rectxi)
       if (e.offsetX - rectxi < 0 && e.offsetY - rectyi > 0) {
-        console.log("1")
         renX = e.offsetX
       } else if (e.offsetX - rectxi > 0 && e.offsetY - rectyi < 0) {
-        console.log("2")
         renY = e.offsetY
         draw_W = Math.abs(e.offsetY - rectyi)
       }
       else if (e.offsetX - rectxi < 0 && e.offsetY - rectyi < 0) {
-        console.log("3")
         draw_W = Math.abs(e.offsetX - rectxi)
         renX = e.offsetX
         renY = rectyi - draw_W
       }
-      console.log(e.offsetX, e.offsetY)
-      console.log(rectxi, rectyi)
-      console.log(e.offsetX - rectxi, e.offsetY - rectyi)
+
       arr_prev = [...arr];
       add_undo();
-      console.log(renX, renY, draw_W)
       arr.push({ x_i: renX, y_i: renY, width: draw_W, height: draw_W, type: "square", color: color_val.value, swi: swi.value, angle: angle.value })
       localStorage.setItem("state", JSON.stringify(arr))
       draw = false;
@@ -116,7 +108,6 @@ canv.addEventListener('mouseup', (e) => {
   } else if (mode == "eraser") {
     draw = false;
   } else if (mode == "select" && found == true) {
-    console.log("change")
     moveHold = false;
   }
 })
@@ -187,7 +178,6 @@ canv.addEventListener('mousedown', (e) => {
     let elem = arr[hit]
     add_undo()
     if (elem.type === "square" || elem.type === "rectangle") {
-      console.log(scale_val)
       elem.width *= scale_val;
       elem.height *= scale_val;
       elem.angle = Number(angle.value);
@@ -232,7 +222,7 @@ canv.addEventListener('mousedown', (e) => {
 
     } else if (elem.type === "image") {
       elem.width *= scale_val;
-      elem.height *= scale_val;            // console.log("yo")
+      elem.height *= scale_val;
 
       elem.angle = Number(angle.value);
       render();
@@ -283,7 +273,6 @@ canv.addEventListener("mousemove", (e) => {
   }
 
   if (mode == "select") {
-    console.log(moveHold, found)
     if (moveHold == true && found == false) {
       moveHold = false
       found = false
@@ -316,7 +305,6 @@ canv.addEventListener("mousemove", (e) => {
       prevY_move = e.offsetY;
       localStorage.setItem("state", JSON.stringify(arr))
     } else if (moveHold && found && arr[hit].type === "pen") {
-      console.log("yo")
       let x_mv = e.offsetX - prevX_move;
       let y_mv = e.offsetY - prevY_move;
       for (let j = 0; j < arr[hit].penarr.length; j++) {
