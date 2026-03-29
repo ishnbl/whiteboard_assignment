@@ -56,14 +56,34 @@ function render() {
                     ctx.stroke();
                 }
                 break;
-            case "eraser":
-                ctx.clearRect(shape.x - 10, shape.y - 10, 20, 20);
-                break;
+            // case "eraser":
+            //     ctx.clearRect(shape.x - 10, shape.y - 10, 20, 20);
+            //     break;
             case "text":
                 ctx.font = "48px serif";
                 ctx.fillText(shape.tx, shape.xi, shape.yi);
-        }
+                break;
+            case "image":
+
+                const img = new Image();
+                img.src = shape.url;
+                img.onload = () => {
+                    ctx.beginPath();
+                    ctx.strokeStyle = shape.color
+                    ctx.lineWidth = shape.swi
+                    ctx.translate(shape.x + shape.width / 2, shape.y + shape.height / 2);
+                    ctx.rotate(shape.angle * Math.PI / 180);
+                    ctx.drawImage(img, -shape.width / 2, -shape.height / 2, shape.width, shape.height);
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+                }
+
+
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                break;
     }
+}
+
 }
 
 
@@ -87,4 +107,4 @@ rectangle.addEventListener('click', (e) => { icoClick(e, "rectangle") })
 line.addEventListener('click', (e) => { icoClick(e, "line") })
 text.addEventListener('click', (e) => { icoClick(e, "text") })
 select.addEventListener('click', (e) => { icoClick(e, "select") })
-
+image.addEventListener('click', (e) => { icoClick(e, "image") })

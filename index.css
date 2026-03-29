@@ -154,3 +154,43 @@
   font-optical-sizing: auto;
   font-style: normal;
 }
+
+@media (max-width: 768px) {
+  #icon-house {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .ico-base, .ico-base-selected {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    font-size: 24px;
+  }
+
+  #color_s {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+  }
+
+  #angle, #swi, #scale {
+    width: 60px;
+    height: 30px;
+    padding: 5px;
+    font-size: 14px;
+  }
+
+  #can {
+    width: 100vw;
+    height: 70vh;
+    margin: 10px 0;
+    border-width: 3px;
+  }
+
+  #main-parent {
+    padding: 10px;
+  }
+}

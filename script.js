@@ -7,6 +7,7 @@ const rectangle = document.getElementById('rectangle')
 const line = document.getElementById('line')
 const text = document.getElementById('text')
 const select = document.getElementById('select')
+const image = document.getElementById('image')
 const mainp = document.getElementById('main_parent')
 const mode_val = document.getElementById('mode')
 const color_val = document.getElementById('color_s')
@@ -406,12 +407,7 @@ canv.addEventListener('mousedown', (e) => {
       elem.y3 = centY + (x3Rel * Math.sin(elem.angle * Math.PI / 180) + y3Rel * Math.cos(elem.angle * Math.PI / 180));
 
       render();
-    // console.log("yo")
-    // let editf = document.createElement("div")
-    // let canv = document.getElementById("can")
-    // editf.id = "edit-form"
-    // editf.innerHTML = "Yo"
-    // mainp.insertBefore(editf, canv)
+
 
     }
     localStorage.setItem("state", JSON.stringify(arr))
@@ -447,52 +443,7 @@ canv.addEventListener("mousemove", (e) => {
       render();
     }
   }
-  // if (mode == "select") {
-  //   // console.log(mode, moveHold, found)
-  //   // // let idx;
-  //   // if (moveHold) {
-  //   //   const hit = search(e.offsetX, e.offsetY);
-  //   //   console.log(hit)
-  //   //   if (delete_sel) {
-  //   //     state_old = [...arr]
-  //   //     console.log(state_old)
-  //   //     arr.splice(hit, 1)
-  //   //     delete_sel = false;
-  //   //     idx_move = hit;
-  //   //   }
-  //   //   console.log(arr)
-  //   //   render()
-  //   //   // let state_old
-  //   //   // let state_old = [...arr]
-  //   //   // arr.splice(hit, 1)
-  //   //   // render();
-  //   //   // console.log(hit)
-  //   //   console.log(state_old[idx_move])
-  //   //   if (state_old[idx_move].type == "square") {
-  //   //     console.log("in")
-  //   //     ctx.beginPath();
-  //   //     ctx.strokeStyle = state_old[idx_move].color
-  //   //     ctx.lineWidth = state_old[idx_move].swi
-  //   //     ctx.strokeRect(e.offsetX, e.offsetY, state_old[idx_move].width, state_old[idx_move].width)
-  //   //   }
-  //   //   // console.log("holding and moving")
-  //   console.log(mode, moveHold, found)
-  //   if (moveHold) {
-  //     let hit = search(e.offsetX, e.offsetY)
-  //     arr[hit].x_i = e.offsetX
-  //     arr[hit].y_i = e.offsetY
-  //     render()
-  //   }
-  // }
-  // render();
-  // const hit = search(e.offsetX, e.offsetY);
-  // if (hit) {
-  //   canv.style.cursor = "pointer"
-  //   found = true;
-  // } else {p = e.offs
-  //   canv.style.cursor = "auto"
-  //   found = false;
-  // }
+
   if(mode == "select"){
 
     const hit = search(e.offsetX, e.offsetY);

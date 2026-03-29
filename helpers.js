@@ -16,6 +16,9 @@ function isInside(x1, y1, x2, y2, x3, y3, x, y)
     return (A == A1 + A2 + A3);
 }
 
+function getRandom(){
+    return Math.random()
+}
 function search(x, y) {
     for (let i = 0; i < arr.length; i++) {
         const ele = arr[i];
@@ -71,7 +74,21 @@ function search(x, y) {
                 }
 
             }
+            case "image": {
+                if (x >= ele.x && x <= ele.x + ele.width && y >= ele.y && y <= ele.y + ele.height) {
+                    return i;
+                }
+                break;
+            }
+            case "text" : {
+                let width_tx = ctx.measureText(ele.tx).width
+                let height_tx = 48
+                if (x >= ele.xi && x <= ele.xi + width_tx && y <= ele.yi && y >= height_tx - ele.yi) {
+                    return i;
+                }
 
+
+            }
 
         }
     }

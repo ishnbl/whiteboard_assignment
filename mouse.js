@@ -119,8 +119,20 @@ canv.addEventListener('mousedown', (e) => {
     } else if (mode == "text") {
         let text = prompt();
         arr_prev = [...arr];
+        add_undo()
         arr.push({ "tx": text, "xi": e.offsetX, "yi": e.offsetY, type: "text", color: color_val.value, swi: swi.value ,angle: angle.value})
+        localStorage.setItem("state", JSON.stringify(arr))
         render()
+    } else if (mode == "image") {
+        let seed = getRandom()
+        seed = seed%100;
+        seed = `${seed}`
+        let url = `https://picsum.photos/seed/${seed}/200/300`;
+        arr_prev = [...arr];
+        add_undo();
+        arr.push({ x: e.offsetX, y: e.offsetY, width: 200, height: 300, type: "image", url: url, angle: angle.value});
+        localStorage.setItem("state", JSON.stringify(arr));
+        render();
     } else if (mode === "select" && found === true) {
         moveHold = true;
         prevX_move = e.offsetX;
@@ -172,13 +184,13 @@ canv.addEventListener('mousedown', (e) => {
             elem.y3 = centY + (x3Rel * Math.sin(elem.angle * Math.PI / 180) + y3Rel * Math.cos(elem.angle * Math.PI / 180));
 
             render();
-            // console.log("yo")
-            // let editf = document.createElement("div")
-            // let canv = document.getElementById("can")
-            // editf.id = "edit-form"
-            // editf.innerHTML = "Yo"
-            // mainp.insertBefore(editf, canv)
 
+        } else if (elem.type === "image") {
+            elem.width *= scale_val;
+            elem.height *= scale_val;            // console.log("yo")
+
+            elem.angle = Number(angle.value);
+            render();
         }
         localStorage.setItem("state", JSON.stringify(arr))
     }
@@ -267,6 +279,20 @@ canv.addEventListener("mousemove", (e) => {
                 prevY_move = e.offsetY;
                 localStorage.setItem("state", JSON.stringify(arr))
             }
+        } else if (moveHold && found && arr[hit].type === "image") {
+            arr[hit].x += e.offsetX - prevX_move
+            arr[hit].y += e.offsetY - prevY_move
+            render()
+            prevX_move = e.offsetX;
+            prevY_move = e.offsetY;
+            localStorage.setItem("state", JSON.stringify(arr))
+        }else if(moveHold && found && arr[hit].type === "text") {
+            arr[hit].xi += e.offsetX - prevX_move
+            arr[hit].yi += e.offsetY - prevY_move
+            render()
+            prevX_move = e.offsetX;
+            prevY_move = e.offsetY;
+            localStorage.setItem("state", JSON.stringify(arr))
         }
 
     }
